@@ -1,0 +1,2 @@
+[functions.notify-ad-report]
+verify_jwt = false

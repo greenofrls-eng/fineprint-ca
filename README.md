@@ -35,6 +35,16 @@ python scripts\build_seed.py
 
 and re-run the new `supabase/seed.sql` in the SQL editor. It upserts, so it's safe to re-run. Visitor submissions land in `ad_reports`; review them in the Supabase table editor and add the good ones to `data/measures.json` under `ads`.
 
+## Get emailed when someone submits an ad report
+
+`supabase/webhook.sql` adds a trigger on `ad_reports` that POSTs each new row (via pg_net) to the Edge Function in `supabase/functions/notify-ad-report/`, which emails it through Resend.
+
+1. Deploy the function (Supabase CLI: `supabase functions deploy notify-ad-report --no-verify-jwt`, or via the dashboard).
+2. Set its secrets: `RESEND_API_KEY`, `NOTIFY_TO`, `NOTIFY_FROM`, `NOTIFY_SECRET` (any long random string), optional `DASHBOARD_URL`.
+3. In `webhook.sql` replace `__FUNCTION_URL__` and `__NOTIFY_SECRET__`, then run it in the SQL editor.
+
+Every submission then arrives in your inbox with reply-to set to the submitter (if they gave an email).
+
 ## Deploy to Netlify
 
 Connect the GitHub repo in Netlify. Publish directory: `/` (repo root). No build command. `netlify.toml` is already set.
