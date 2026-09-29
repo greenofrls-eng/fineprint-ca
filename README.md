@@ -31,6 +31,7 @@ To update content later: edit `data/measures.json`, then
 
 ```powershell
 python scripts\build_seed.py
+python scripts\build_pages.py
 ```
 
 and re-run the new `supabase/seed.sql` in the SQL editor. It upserts, so it's safe to re-run. Visitor submissions land in `ad_reports`; review them in the Supabase table editor and add the good ones to `data/measures.json` under `ads`.
@@ -44,6 +45,16 @@ and re-run the new `supabase/seed.sql` in the SQL editor. It upserts, so it's sa
 3. In `webhook.sql` replace `__FUNCTION_URL__` and `__NOTIFY_SECRET__`, then run it in the SQL editor.
 
 Every submission then arrives in your inbox with reply-to set to the submitter (if they gave an email).
+
+## Social link previews (Open Graph)
+
+Every route is a real static page with its own preview card, so links pasted into X, Facebook, LinkedIn, iMessage, or Slack show the right title and image:
+
+- `og/site.png` for `/`, `/about/`, `/report/`; `og/prop-N.png` for each measure page.
+- `scripts/build_og.js` renders the card images from `data/measures.json` (one-time setup: `npm i -D playwright @fontsource/source-serif-4 @fontsource/inter`, then `node scripts/build_og.js`).
+- `scripts/build_pages.py` regenerates `about/`, `report/`, and `prop-N/` pages from `index.html` (the block between `<!--OG:START-->` and `<!--OG:END-->` is what gets swapped). Run it after any change to `index.html` or to measure titles.
+
+Routing is path-based (`/prop-40/`); old hash links (`#/prop-40`) still work and redirect.
 
 ## Deploy to Netlify
 

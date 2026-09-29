@@ -43,7 +43,7 @@
       const adsN = (ads || []).map((a) => ({ ...a, measure: byId[a.measure_id], claims: (claims || []).filter((c) => c.ad_id === a.id) }));
       DATA = { election: { name: el?.name, date: el?.election_date, funding_as_of: el?.funding_as_of }, measures, ads: adsN };
     } else {
-      const r = await fetch("data/measures.json", { cache: "no-cache" });
+      const r = await fetch("/data/measures.json", { cache: "no-cache" });
       if (!r.ok) throw new Error("Could not load data/measures.json");
       DATA = await r.json();
     }
@@ -59,7 +59,7 @@
     const { election, measures } = DATA;
     const cards = measures.map((m) => {
       const y = adsFor(m.number, "yes").length, n = adsFor(m.number, "no").length;
-      return `<a class="card" href="#/${esc(m.slug)}">
+      return `<a class="card" href="/${esc(m.slug)}/">
         <div class="num">Prop ${m.number}</div>
         <h3>${esc(m.short_title)}</h3>
         <div class="desc">${esc(m.official_title.replace(/\.\s*(Legislative|Initiative)[^.]*\.?$/, "."))}</div>
@@ -75,7 +75,7 @@
         <div class="kicker">${esc(election.name)} · ${fmtDate(election.date)}</div>
         <h1>Every ballot-measure ad, and what it leaves out.</h1>
         <p>Fourteen propositions. For each one: what it actually does, the official arguments on both sides, who is paying for the ads, and the part each side's commercials tend to skip. Same treatment for Yes and No.</p>
-        <p class="small muted">Saw a TV spot and want it checked? <a href="#/report">Tell us what it said</a>.</p>
+        <p class="small muted">Saw a TV spot and want it checked? <a href="/report/">Tell us what it said</a>.</p>
       </section>
       <div class="grid">${cards}</div>`;
   }
@@ -99,7 +99,7 @@
       <div class="ad-meta">${esc(a.format || "Ad")} · ${esc(a.sponsor || "")}${a.first_seen ? ` · first seen ${esc(a.first_seen)}` : ""}</div>
       ${a.url ? `<div class="ad-link"><a href="${esc(a.url)}" target="_blank" rel="noopener">Watch / view on ${esc(host(a.url))} ↗</a></div>` : ""}
       ${claims}
-      ${needs && !claims ? `<div class="todo">Transcript not yet reviewed. <a href="#/report?prop=${a.measure}">Saw it? Tell us what it claimed.</a></div>` : ""}
+      ${needs && !claims ? `<div class="todo">Transcript not yet reviewed. <a href="/report/?prop=${a.measure}">Saw it? Tell us what it claimed.</a></div>` : ""}
     </div>`;
   }
 
@@ -121,7 +121,7 @@
           ${list(leaves) || "<p class='no-ads'>Nothing catalogued yet.</p>"}
         </div>
         <h3>Ads (${ads.length})</h3>
-        ${ads.length ? ads.map(adHtml).join("") : `<p class="no-ads">No ${label} ads catalogued yet. <a href="#/report?prop=${m.number}">Seen one?</a></p>`}
+        ${ads.length ? ads.map(adHtml).join("") : `<p class="no-ads">No ${label} ads catalogued yet. <a href="/report/?prop=${m.number}">Seen one?</a></p>`}
         <h3>Who is paying</h3>
         ${committees.length ? committees.map(committeeHtml).join("") : "<p class='no-ads'>No committee reported.</p>"}
         ${links ? `<h3>Campaign sites</h3><p class="links">${links}</p>` : ""}
@@ -131,7 +131,7 @@
 
   function viewMeasure(slug) {
     const m = DATA.measures.find((x) => x.slug === slug);
-    if (!m) return `<section class="hero"><h1>Not found</h1><p><a href="#/">Back to all measures</a></p></section>`;
+    if (!m) return `<section class="hero"><h1>Not found</h1><p><a href="/">Back to all measures</a></p></section>`;
     document.title = `Prop ${m.number}: ${m.short_title} — Fine Print CA`;
     return `
       <div class="measure-head">
@@ -165,7 +165,7 @@
         <h2>Sources</h2>
         ${list(m.sources).replace(/<li>(.*?)<\/li>/g, (_, u) => `<li><a href="${u}" target="_blank" rel="noopener">${u}</a></li>`)}
       </section>
-      <a class="back" href="#/">← All measures</a>`;
+      <a class="back" href="/">← All measures</a>`;
   }
 
   function formHtml(preselect) {
@@ -204,7 +204,7 @@
       <h2>"What it leaves out" is not "what is false"</h2>
       <p>We don't rate ads true or false. We list the facts from official sources that the ad's framing omits. Most of the time the ad is technically accurate and the omission is what matters.</p>
       <h2>Where the ads come from</h2>
-      <p>Campaign YouTube channels, campaign websites, the Meta Ad Library, the Google Ads Transparency Center, and viewers who <a href="#/report">tell us what they saw</a>. We link to ads; we don't host or edit them.</p>
+      <p>Campaign YouTube channels, campaign websites, the Meta Ad Library, the Google Ads Transparency Center, and viewers who <a href="/report/">tell us what they saw</a>. We link to ads; we don't host or edit them.</p>
       <h2>Sources</h2>
       <p>The <a href="https://voterguide.sos.ca.gov/propositions/" target="_blank" rel="noopener">California Official Voter Information Guide</a>, the <a href="https://lao.ca.gov/" target="_blank" rel="noopener">Legislative Analyst's Office</a> ballot analyses, the <a href="https://www.fppc.ca.gov/search-filings/top-10-contributors-list/november-2026-general-election/" target="_blank" rel="noopener">FPPC Top 10 Contributors list</a>, and nonpartisan coverage from CalMatters, KQED, and KPBS. Each measure page lists its sources.</p>
       <h2>This is a test</h2>
@@ -242,12 +242,23 @@
   }
 
   // ---------- router ----------
+  // Path-based routes: /  /about/  /report/?prop=N  /prop-N/
+  // Each route is a real static page (see scripts/build_pages.py) so social
+  // crawlers get per-page Open Graph tags. Old hash links (#/prop-40) still work.
+  function currentRoute() {
+    const h = location.hash.replace(/^#\/?/, "");
+    if (h) {
+      const [p, qs] = h.split("?");
+      const target = "/" + (p ? p.replace(/\/+$/, "") + "/" : "") + (qs ? "?" + qs : "");
+      history.replaceState(null, "", target);
+    }
+    const path = location.pathname.replace(/^\/|\/$/g, "").replace(/\/index\.html$/, "");
+    return { path, params: new URLSearchParams(location.search) };
+  }
   async function render() {
     try {
       await loadData();
-      const raw = location.hash.replace(/^#\/?/, "");
-      const [path, qs] = raw.split("?");
-      const params = new URLSearchParams(qs || "");
+      const { path, params } = currentRoute();
       let html;
       if (!path) { document.title = "Fine Print CA — What the ballot ads leave out"; html = viewIndex(); }
       else if (path === "about") html = viewAbout();
@@ -263,5 +274,6 @@
     }
   }
   window.addEventListener("hashchange", render);
+  window.addEventListener("popstate", render);
   render();
 })();
