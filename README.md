@@ -1,5 +1,7 @@
 # Fine Print CA
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e9ced5d0-d5e0-41b7-a35b-685a834ccb0b/deploy-status)](https://app.netlify.com/projects/fineprint-ca/deploys)
+
 Every California November 2026 ballot measure, the ads for and against it, who paid for them, and what each side's ads tend to leave out. Working name; rename freely.
 
 **Test scope:** California only, the 14 measures on the November 3, 2026 ballot (Props 1–5, 37–45).
