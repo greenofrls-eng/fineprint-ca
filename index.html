@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fine Print CA — What the ballot ads leave out</title>
+  <meta name="description" content="Every California November 2026 ballot measure, the ads for and against it, who paid for them, and what each side's ads tend to leave out. Nonpartisan by construction: both sides, same treatment.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="#/">
+        <span class="brand-mark">§</span>
+        <span class="brand-name">Fine Print <span class="brand-ca">CA</span></span>
+      </a>
+      <nav class="site-nav">
+        <a href="#/">Measures</a>
+        <a href="#/about">How this works</a>
+        <a href="#/report" class="nav-cta">I saw an ad</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app" class="wrap" aria-live="polite">
+    <p class="loading">Loading…</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Measure text, fiscal estimates, and official arguments come from the <a href="https://voterguide.sos.ca.gov/propositions/" target="_blank" rel="noopener">California Official Voter Information Guide</a> and the <a href="https://lao.ca.gov/" target="_blank" rel="noopener">Legislative Analyst's Office</a>. Committee and funder data from the <a href="https://www.fppc.ca.gov/search-filings/top-10-contributors-list/november-2026-general-election/" target="_blank" rel="noopener">FPPC Top 10 Contributors list</a>, as of <span data-funding-date></span>. Ads are linked, not hosted. This site does not endorse any measure.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
